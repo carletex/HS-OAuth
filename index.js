@@ -2,18 +2,18 @@ var https = require('https');
 var querystring = require('querystring');
 var request = require('request');
 var RSVP = require('rsvp');
-var read = require("read")
-
+var read = require('read')
+var url = require('url');
 
 // Enable cookies for requests
 var j = request.jar()
-var bodyequest = request.defaults({jar: j});
+var request = request.defaults({jar: j});
 
 var CALLBACK_URI = 'urn:ietf:wg:oauth:2.0:oob'
 // Auth server end-points
 var HS_BASE_URL = 'https://www.hackerschool.com'
-var HS_AUTHORIZE_URL= '/oauth/authorize'
-var HS_ACCESS_TOKEN_URL= '/oauth/token'
+var HS_AUTHORIZE_URL = HS_BASE_URL + '/oauth/authorize'
+var HS_ACCESS_TOKEN_URL = HS_BASE_URL + '/oauth/token'
 
 
 function HSLogin (credentials) {
@@ -39,7 +39,6 @@ function HSLogin (credentials) {
 			}
 
 			request.post(query, function(error, response, body) {
-				console.log('RES:', error, body);
 				resolve();
 			});
 
@@ -49,23 +48,39 @@ function HSLogin (credentials) {
 
 }
 
-// function getAuthToken() {
+function getAuthGrant() {
 
-// 	var query = {
-//     'client_id': process.env.HS_CONSUMER_KEY,
-//     'response_type': 'code',
-//     'redirect_uri': CALLBACK_URI
-//   }
+	var params = {
+    'client_id': process.env.HS_CONSUMER_KEY,
+    'response_type': 'code',
+    'redirect_uri': CALLBACK_URI
+  }
 
-// 	var options = {
-// 		url: HS_BASE_URL + HS_AUTHORIZE_URL + '?' + querystring.stringify(query),
-// 	};
+	var options = {
+		url: HS_BASE_URL + HS_AUTHORIZE_URL + '?' + querystring.stringify(params),
+	};
 
-// 	request.get(options, function(error, response, body) {
-// 		console.log(error, response, body);
+	return new RSVP.Promise(function(resolve, reject) {
 
-// 	});
-// }
+		request.get(options, function(error, response, body) {
+
+			var query = {
+				url: HS_AUTHORIZE_URL,
+				form: params
+			}
+
+			request.post(query, function(error, response, body) {
+
+				var authCode = url.parse(response.headers.location).pathname.split('/')[3];
+				resolve(authCode);
+
+			});
+
+		});
+
+	});
+
+}
 
 function getHSCredentials() {
 	return new RSVP.Promise(function(resolve, reject){
@@ -93,6 +108,10 @@ getHSCredentials()
 .then(function(credentials) {
 	return HSLogin(credentials);
 })
-.then(function(session) {
-
+.then(function() {
+	console.log('HS Login successfully');
+	return getAuthGrant();
+})
+.then(function(authCode) {
+	console.log('You auth code is:', authCode);
 });
