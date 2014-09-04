@@ -1,0 +1,20 @@
+{
+  "name": "hs-oauth-node",
+  "version": "0.0.1",
+  "description": "OAuth node.js library for Hacker School",
+  "main": "index.js",
+  "dependencies": {
+    "request": "~2.40.0",
+    "rsvp": "~3.0.13",
+    "read": "~1.0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carletex/OAuth-hs.git"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/carletex/OAuth-hs/issues"
+  }
+}
