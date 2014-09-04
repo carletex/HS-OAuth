@@ -51,9 +51,9 @@ function HSLogin (credentials) {
 function getAuthGrant() {
 
 	var params = {
-    'client_id': process.env.HS_CONSUMER_KEY,
-    'response_type': 'code',
-    'redirect_uri': CALLBACK_URI
+    client_id: process.env.HS_CONSUMER_KEY,
+    response_type: 'code',
+    redirect_uri: CALLBACK_URI
   }
 
 	var options = {
@@ -76,6 +76,33 @@ function getAuthGrant() {
 
 			});
 
+		});
+
+	});
+
+}
+
+function getAccessToken(authCode) {
+
+	return new RSVP.Promise(function(resolve, reject) {
+
+		var params = {
+			grant_type: "authorization_code",
+			code: authCode,
+			redirect_uri: CALLBACK_URI,
+			client_id: process.env.HS_CONSUMER_KEY
+		}
+
+		var query = {
+			url: HS_ACCESS_TOKEN_URL,
+			form: params
+		}
+
+		console.log('POST with', query);
+
+		request.post(query, function(error, response, body) {
+			console.log('From getAccessToken-> ', error, body);
+			resolve();
 		});
 
 	});
@@ -114,4 +141,8 @@ getHSCredentials()
 })
 .then(function(authCode) {
 	console.log('You auth code is:', authCode);
+	return getAccessToken(authCode);
+})
+.then(function() {
+	console.log('Access token?');
 });
