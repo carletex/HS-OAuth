@@ -65,6 +65,7 @@ function getAuthGrant() {
 				form: params
 			}
 
+			// TODO: Not necesary if we already have the auth
 			request.post(query, function(error, response, body) {
 
 				var authCode = url.parse(response.headers.location).pathname.split('/')[3];
@@ -88,11 +89,15 @@ function getAccessToken(authCode) {
 
 		var query = {
 			url: HS_ACCESS_TOKEN_URL,
-			form: params
+			form: params,
+			auth: {
+				user: process.env.HS_CONSUMER_KEY,
+				pass: process.env.HS_CONSUMER_SECRET
+			}
 		}
 
 		request.post(query, function(error, response, body) {
-			resolve();
+			resolve(body);
 		});
 
 	});
@@ -134,5 +139,6 @@ getHSCredentials()
 	console.log('You auth code is:', authCode);
 	return getAccessToken(authCode);
 })
-.then(function() {
-	console.log('Access token?');
+.then(function(body) {
+	console.log('Your token info:', body);
+});
