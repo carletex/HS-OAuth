@@ -20,7 +20,6 @@ function HSLogin (credentials) {
 
 	// Get the Authenticity form token in /login
 	return new RSVP.Promise(function(resolve, reject) {
-
 		request.get(HS_BASE_URL + '/login', function(error, response, body) {
 
 			var regex = /<meta.*content="(.*?)".*name="csrf-token".*\/>/;
@@ -43,24 +42,21 @@ function HSLogin (credentials) {
 			});
 
 		});
-
 	});
-
 }
 
 function getAuthGrant() {
 
-	var params = {
-    client_id: process.env.HS_CONSUMER_KEY,
-    response_type: 'code',
-    redirect_uri: CALLBACK_URI
-  }
-
-	var options = {
-		url: HS_BASE_URL + HS_AUTHORIZE_URL + '?' + querystring.stringify(params),
-	};
-
 	return new RSVP.Promise(function(resolve, reject) {
+		var params = {
+	    client_id: process.env.HS_CONSUMER_KEY,
+	    response_type: 'code',
+	    redirect_uri: CALLBACK_URI
+	  }
+
+		var options = {
+			url: HS_AUTHORIZE_URL + '?' + querystring.stringify(params),
+		};
 
 		request.get(options, function(error, response, body) {
 
@@ -77,15 +73,12 @@ function getAuthGrant() {
 			});
 
 		});
-
 	});
-
 }
 
 function getAccessToken(authCode) {
 
 	return new RSVP.Promise(function(resolve, reject) {
-
 		var params = {
 			grant_type: "authorization_code",
 			code: authCode,
@@ -98,19 +91,16 @@ function getAccessToken(authCode) {
 			form: params
 		}
 
-		console.log('POST with', query);
-
 		request.post(query, function(error, response, body) {
-			console.log('From getAccessToken-> ', error, body);
 			resolve();
 		});
 
 	});
-
 }
 
 function getHSCredentials() {
 	return new RSVP.Promise(function(resolve, reject){
+
 		var credentials = {};
 
 		return new RSVP.Promise(function(resolve, reject) {
@@ -125,6 +115,7 @@ function getHSCredentials() {
 				resolve(credentials);
 			});
 		});
+
 	});
 }
 
@@ -145,4 +136,3 @@ getHSCredentials()
 })
 .then(function() {
 	console.log('Access token?');
-});
