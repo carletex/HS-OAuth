@@ -15,6 +15,10 @@ var HS_BASE_URL = 'https://www.hackerschool.com'
 var HS_AUTHORIZE_URL = HS_BASE_URL + '/oauth/authorize'
 var HS_ACCESS_TOKEN_URL = HS_BASE_URL + '/oauth/token'
 
+// Object vars
+
+var accessToken;
+var refreshToken;
 
 function HSLogin (credentials) {
 
@@ -97,7 +101,7 @@ function getAccessToken(authCode) {
 		}
 
 		request.post(query, function(error, response, body) {
-			resolve(body);
+			resolve(JSON.parse(body));
 		});
 
 	});
@@ -124,6 +128,23 @@ function getHSCredentials() {
 	});
 }
 
+function HSRequest(command) {
+
+	return new RSVP.Promise(function(resolve, reject) {
+		var query = {
+			url: HS_BASE_URL + command,
+			headers: {
+				'Authorization': 'Bearer ' + accessToken
+			}
+		};
+
+		request.get(query, function(error, response, body) {
+			resolve(JSON.parse(body));
+		});
+	})
+
+}
+
 
 // MAIN
 
@@ -139,6 +160,14 @@ getHSCredentials()
 	console.log('You auth code is:', authCode);
 	return getAccessToken(authCode);
 })
-.then(function(body) {
-	console.log('Your token info:', body);
+.then(function(tokenData) {
+	console.log('Your token info:', tokenData);
+
+	accessToken = tokenData.access_token;
+	refreshToken = tokenData.refresh_token;
+
+	return HSRequest('/api/v1/people/me');
+})
+.then(function(response){
+	console.log(response);
 });
