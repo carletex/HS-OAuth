@@ -3,7 +3,8 @@ var hs = require('./oauth-hs.js');
 hs.connectHS(function(error) {
 
 	if (error) {
-		throw new Error('Cant connect to HS:' + error)
+		console.log('Something went wrong', error);
+		return;
 	}
 
 	var command = '/api/v1/people/me';

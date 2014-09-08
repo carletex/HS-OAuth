@@ -15,7 +15,6 @@ var CALLBACK_URI = 'urn:ietf:wg:oauth:2.0:oob',
     HS_AUTHORIZE_URL = HS_BASE_URL + '/oauth/authorize',
     HS_ACCESS_TOKEN_URL = HS_BASE_URL + '/oauth/token';
 
-// Object vars
 var OAuthHS = {};
 
 OAuthHS.accessToken;
@@ -66,6 +65,28 @@ OAuthHS.getHS = function getHS(command, callback) {
 
 }
 
+OAuthHS._getCredentialsHS = function _getCredentialsHS() {
+  return new RSVP.Promise(function(resolve, reject){
+
+    var credentials = {};
+
+    return new RSVP.Promise(function(resolve, reject) {
+      read({prompt: 'HS username: '}, function(error, text) {
+        credentials.username = text;
+        resolve();
+      });
+    })
+    .then(function() {
+      read({prompt: 'HS password: ', silent: true}, function(error, text) {
+        credentials.password = text;
+        resolve(credentials);
+      });
+    });
+
+  });
+
+}
+
 OAuthHS._loginHS = function _loginHS (credentials) {
   // Get the Authenticity form token in /login
   return new RSVP.Promise(function(resolve, reject) {
@@ -93,6 +114,10 @@ OAuthHS._loginHS = function _loginHS (credentials) {
       request.post(query, function(error, response, body) {
         if (error) {
           console.log('Something went wrong:', error);
+          reject();
+        } else if (response.statusCode !== 302) {
+          // HS don't redirect to dashboard => authentication failed
+          console.log('HS authentication failed');
           reject();
         }
         resolve();
@@ -167,28 +192,6 @@ OAuthHS._getAccessToken = function _getAccessToken(authCode) {
         reject();
       }
       resolve(JSON.parse(body));
-    });
-
-  });
-
-}
-
-OAuthHS._getCredentialsHS = function _getCredentialsHS() {
-  return new RSVP.Promise(function(resolve, reject){
-
-    var credentials = {};
-
-    return new RSVP.Promise(function(resolve, reject) {
-      read({prompt: 'HS username: '}, function(error, text) {
-        credentials.username = text;
-        resolve();
-      });
-    })
-    .then(function() {
-      read({prompt: 'HS password: ', silent: true}, function(error, text) {
-        credentials.password = text;
-        resolve(credentials);
-      });
     });
 
   });
