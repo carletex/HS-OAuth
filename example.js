@@ -1,13 +1,16 @@
-// Desired API
-var hs = require('oauth-hs');
+var hs = require('./oauth-hs.js');
 
-hs.connectHS(usernameOptional, passwordOptional, function(error) {
+hs.connectHS(function(error) {
 
-	var command = '/people/me';
+	if (error) {
+		throw new Error('Cant connect to HS:' + error)
+	}
+
+	var command = '/api/v1/people/me';
 
 	hs.getHS(command, function(error, response) {
-		console.log('Response from HS:', reponse);
+		if (error) console.log('Something went wrong', error);
+		else console.log('Response from HS:', response);
 	});
 
 });
-

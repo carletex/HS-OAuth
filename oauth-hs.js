@@ -1,3 +1,5 @@
+'use strict'
+
 var https = require('https'),
     querystring = require('querystring'),
     request = require('request'),
@@ -14,11 +16,57 @@ var CALLBACK_URI = 'urn:ietf:wg:oauth:2.0:oob',
     HS_ACCESS_TOKEN_URL = HS_BASE_URL + '/oauth/token';
 
 // Object vars
-var accessToken,
-    refreshToken;
+var OAuthHS = {};
 
-function HSLogin (credentials) {
+OAuthHS.accessToken;
+OAuthHS.refreshToken;
 
+OAuthHS.connectHS = function connectHS(callback) {
+
+  var _this = this;
+
+  this._getCredentialsHS()
+  .then(function(credentials) {
+    return _this._loginHS(credentials);
+  })
+  .then(function() {
+    console.log('HS Login successfully');
+    return _this._getAuthGrant();
+  })
+  .then(function(authCode) {
+    console.log('You auth code is:', authCode);
+    return _this._getAccessToken(authCode);
+  })
+  .then(function(tokenData) {
+    console.log('Your token info:', tokenData);
+
+    _this.accessToken = tokenData.access_token;
+    _this.refreshToken = tokenData.refresh_token;
+
+    callback();
+  });
+
+}
+
+OAuthHS.getHS = function getHS(command, callback) {
+
+  var query = {
+    url: HS_BASE_URL + command,
+    headers: {
+      'Authorization': 'Bearer ' + this.accessToken
+    }
+  };
+
+  request.get(query, function(error, response, body) {
+    if (error) {
+      callback(error, null);
+    }
+    callback(null, JSON.parse(body));
+  });
+
+}
+
+OAuthHS._loginHS = function _loginHS (credentials) {
   // Get the Authenticity form token in /login
   return new RSVP.Promise(function(resolve, reject) {
     request.get(HS_BASE_URL + '/login', function(error, response, body) {
@@ -52,9 +100,10 @@ function HSLogin (credentials) {
 
     });
   });
+
 }
 
-function getAuthGrant() {
+OAuthHS._getAuthGrant = function _getAuthGrant() {
 
   return new RSVP.Promise(function(resolve, reject) {
     var params = {
@@ -90,9 +139,10 @@ function getAuthGrant() {
 
     });
   });
+
 }
 
-function getAccessToken(authCode) {
+OAuthHS._getAccessToken = function _getAccessToken(authCode) {
 
   return new RSVP.Promise(function(resolve, reject) {
     var params = {
@@ -120,9 +170,10 @@ function getAccessToken(authCode) {
     });
 
   });
+
 }
 
-function getHSCredentials() {
+OAuthHS._getCredentialsHS = function _getCredentialsHS() {
   return new RSVP.Promise(function(resolve, reject){
 
     var credentials = {};
@@ -141,50 +192,7 @@ function getHSCredentials() {
     });
 
   });
-}
-
-function HSRequest(command) {
-
-  return new RSVP.Promise(function(resolve, reject) {
-    var query = {
-      url: HS_BASE_URL + command,
-      headers: {
-        'Authorization': 'Bearer ' + accessToken
-      }
-    };
-
-    request.get(query, function(error, response, body) {
-      if (error) {
-        console.log('Something went wrong:', error);
-        reject();
-      }
-      resolve(JSON.parse(body));
-    });
-  })
 
 }
 
-// MAIN
-getHSCredentials()
-.then(function(credentials) {
-  return HSLogin(credentials);
-})
-.then(function() {
-  console.log('HS Login successfully');
-  return getAuthGrant();
-})
-.then(function(authCode) {
-  console.log('You auth code is:', authCode);
-  return getAccessToken(authCode);
-})
-.then(function(tokenData) {
-  console.log('Your token info:', tokenData);
-
-  accessToken = tokenData.access_token;
-  refreshToken = tokenData.refresh_token;
-
-  return HSRequest('/api/v1/people/me');
-})
-.then(function(response){
-  console.log(response);
-});
+module.exports = OAuthHS;
