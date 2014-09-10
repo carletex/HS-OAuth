@@ -15,12 +15,14 @@ var CALLBACK_URI = 'urn:ietf:wg:oauth:2.0:oob',
     HS_AUTHORIZE_URL = HS_BASE_URL + '/oauth/authorize',
     HS_ACCESS_TOKEN_URL = HS_BASE_URL + '/oauth/token';
 
-var OAuthHS = {};
+var OAuthHS = function OAuthHS () {
 
-OAuthHS.accessToken;
-OAuthHS.refreshToken;
+  this.refreshToken;
+  this.accessToken;
 
-OAuthHS.connectHS = function connectHS(callback) {
+};
+
+OAuthHS.prototype.connectHS = function connectHS(callback) {
 
   var _this = this;
 
@@ -47,7 +49,7 @@ OAuthHS.connectHS = function connectHS(callback) {
 
 }
 
-OAuthHS.getHS = function getHS(command, callback) {
+OAuthHS.prototype.getHS = function getHS(command, callback) {
 
   var query = {
     url: HS_BASE_URL + command,
@@ -65,7 +67,7 @@ OAuthHS.getHS = function getHS(command, callback) {
 
 }
 
-OAuthHS._getCredentialsHS = function _getCredentialsHS() {
+OAuthHS.prototype._getCredentialsHS = function _getCredentialsHS() {
   return new RSVP.Promise(function(resolve, reject){
 
     var credentials = {};
@@ -87,7 +89,7 @@ OAuthHS._getCredentialsHS = function _getCredentialsHS() {
 
 }
 
-OAuthHS._loginHS = function _loginHS (credentials) {
+OAuthHS.prototype._loginHS = function _loginHS (credentials) {
   // Get the Authenticity form token in /login
   return new RSVP.Promise(function(resolve, reject) {
     request.get(HS_BASE_URL + '/login', function(error, response, body) {
@@ -128,7 +130,7 @@ OAuthHS._loginHS = function _loginHS (credentials) {
 
 }
 
-OAuthHS._getAuthGrant = function _getAuthGrant() {
+OAuthHS.prototype._getAuthGrant = function _getAuthGrant() {
 
   return new RSVP.Promise(function(resolve, reject) {
     var params = {
@@ -167,7 +169,7 @@ OAuthHS._getAuthGrant = function _getAuthGrant() {
 
 }
 
-OAuthHS._getAccessToken = function _getAccessToken(authCode) {
+OAuthHS.prototype._getAccessToken = function _getAccessToken(authCode) {
 
   return new RSVP.Promise(function(resolve, reject) {
     var params = {
