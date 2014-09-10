@@ -1,4 +1,4 @@
-# OAuth-hs
+# HS-OAuth
 
 OAuth node.js library for Hacker School
 

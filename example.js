@@ -1,4 +1,4 @@
-var hs = require('./oauth-hs.js');
+var hs = require('./hs-oauth.js');
 
 hs.connectHS(function(error) {
 
