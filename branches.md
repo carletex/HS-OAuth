@@ -1,4 +1,4 @@
-# Lib Branches
+# 1 - Lib Branches
 
 These branches have the purpose of trying new ways of encapsulating and using the library.
 
@@ -20,7 +20,10 @@ These branches have the purpose of trying new ways of encapsulating and using th
 
 .....
 
-## Refactor_new ("Class" encapsulation - using new)
+
+
+
+## 2 - Refactor_new ("Class" encapsulation - using new)
 
 **Encapsulation:** Export the library as a function with "class" variables and prototype functions, where functions have callbacks
 **Usage:** `var hs = new libraryName()`, and `hs.varOrFunction()`
@@ -38,10 +41,26 @@ These branches have the purpose of trying new ways of encapsulating and using th
 ### When to use
 ....
 
-## Refactor_events (Emit 'connected' and 'data' events)
 
-**Encapsulation:** The
-**Usage:** `var hs = libraryName.connectHS(args)` and listen to events `hs.on('connected')` or `hs.on('dataN')`
+
+
+## 3 - Refactor_events (Emit 'connected' and 'data' events)
+
+**Encapsulation:** Function?
+**Usage:** `var hs = libraryName.connectHS(args)` and listen to events `hs.on('connected')` or `hs.on('dataN')`. Connect should return an instance?
+
+### Pros
+
+### Cons
+
+### When to use
+
+
+
+## 4 - Refactor_mary
+
+**Encapsulation:** Function?
+**Usage:** `libraryName(args, callback(instance){})`
 
 ### Pros
 
