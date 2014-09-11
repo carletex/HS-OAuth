@@ -97,9 +97,9 @@ OAuthHS.prototype._loginHS = function _loginHS (username, password) {
           'password': password,
           'commit': 'Log+in'
         }
-      }
+      };
 
-      request.post(query, function(error, response, body) {
+      request.post(query, function(error, response) {
         if (error) {
           reject(error);
           return;
@@ -128,9 +128,9 @@ OAuthHS.prototype._getAuthGrant = function _getAuthGrant() {
         response_type: 'code',
         redirect_uri: CALLBACK_URI
       }
-    }
+    };
 
-    request.post(query, function(error, response, body) {
+    request.post(query, function(error, response) {
       if (error) {
         reject(error);
         return;
@@ -152,7 +152,7 @@ OAuthHS.prototype._getAccessToken = function _getAccessToken(authCode) {
     var query = {
       url: HS_ACCESS_TOKEN_URL,
       form: {
-        grant_type: "authorization_code",
+        grant_type: 'authorization_code',
         code: authCode,
         redirect_uri: CALLBACK_URI,
         client_id: _this.config.hsID
@@ -161,7 +161,7 @@ OAuthHS.prototype._getAccessToken = function _getAccessToken(authCode) {
         user: _this.config.hsID,
         pass: _this.config.hsSecret
       }
-    }
+    };
 
     request.post(query, function(error, response, body) {
       if (error) {
