@@ -19,11 +19,13 @@ var AUTH_REGEX = /<meta.*content="(.*?)".*name="csrf-token".*\/>/;
 
 var OAuthHS = module.exports = function(config, cb) {
 
-  this.config = {};
-  this.config.hsID = config.hsID;
-  this.config.hsSecret = config.hsSecret;
-  this.config.username = config.username;
-  this.config.password = config.password;
+  this.config = {
+    hsID: config.hsID,
+    hsSecret: config.hsSecret,
+    username: config.username,
+    password: config.password
+  };
+
   Object.freeze(this.config);
 
   this.accessToken = null;
