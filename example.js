@@ -10,7 +10,7 @@ config = {
 hs.connectHS(config, function(error, conn) {
 
 	if (error) {
-		console.log('Something went wrong', error);
+		console.log('Something went wrong:', error);
 		return;
 	}
 

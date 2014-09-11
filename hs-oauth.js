@@ -16,33 +16,41 @@ var HS_BASE_URL = 'https://www.hackerschool.com';
 var HS_AUTHORIZE_URL = HS_BASE_URL + '/oauth/authorize';
 var HS_ACCESS_TOKEN_URL = HS_BASE_URL + '/oauth/token';
 
-var OAuthHS = module.exports =function(config, cb) {
+var AUTH_REGEX = /<meta.*content="(.*?)".*name="csrf-token".*\/>/;
 
-  this.hsID = config.hsID;
-  this.hsSecret = config.hsSecret;
+var OAuthHS = module.exports = function(config, cb) {
+
+  this.config = {};
+  this.config.hsID = config.hsID;
+  this.config.hsSecret = config.hsSecret;
+  this.config.username = config.username;
+  this.config.password = config.password;
+  Object.freeze(this.config);
 
   this.accessToken;
   this.refreshToken;
 
   var _this = this;
 
-  _this._loginHS(config.username, config.password)
-  .then(function() {
-    console.log('HS Login successfully');
-    return _this._getAuthGrant();
-  })
-  .then(function(authCode) {
-    console.log('You auth code is:', authCode);
-    return _this._getAccessToken(authCode);
-  })
-  .then(function(tokenData) {
-    console.log('Your token info:', tokenData);
+  _this._loginHS(this.config.username, this.config.password)
+    .then(function() {
+      console.log('HS Login successfully');
+      return _this._getAuthGrant();
+    })
+    .then(function(authCode) {
+      console.log('You auth code is:', authCode);
+      return _this._getAccessToken(authCode);
+    })
+    .then(function(tokenData) {
+      console.log('Your token info:', tokenData);
 
-    _this.accessToken = tokenData.access_token;
-    _this.refreshToken = tokenData.refresh_token;
+      _this.accessToken = tokenData.access_token;
+      _this.refreshToken = tokenData.refresh_token;
 
-    cb();
-  });
+      cb();
+    }).catch(function(error) {
+      cb(error);
+    });
 
 }
 
@@ -54,7 +62,7 @@ OAuthHS.connectHS = function connectHS(conf, cb) {
 
 }
 
-OAuthHS.prototype.getHS = function getHS(command, callback) {
+OAuthHS.prototype.getHS = function getHS(command, cb) {
 
   var query = {
     url: HS_BASE_URL + command,
@@ -65,50 +73,44 @@ OAuthHS.prototype.getHS = function getHS(command, callback) {
 
   request.get(query, function(error, response, body) {
     if (error) {
-      callback(error, null);
+      cb(error, null);
+      return;
     }
-    callback(null, JSON.parse(body));
+    cb(null, JSON.parse(body));
   });
 
 }
 
 OAuthHS.prototype._loginHS = function _loginHS (username, password) {
 
-  // Get the Authenticity form token in /login
   return new RSVP.Promise(function(resolve, reject) {
     request.get(HS_BASE_URL + '/login', function(error, response, body) {
       if (error) {
-        console.log('Something went wrong:', error);
-        reject();
-      }
-
-      var regex = /<meta.*content="(.*?)".*name="csrf-token".*\/>/;
-      var authenticityToken = body.match(regex)[1];
-
-      var params = {
-        'authenticity_token': authenticityToken,
-        'email': username,
-        'password': password,
-        'commit': 'Log+in'
+        reject(error);
+        return;
       }
 
       var query = {
         url: HS_BASE_URL + '/sessions',
-        form: params
+        form: {
+          'authenticity_token': body.match(AUTH_REGEX)[1],
+          'email': username,
+          'password': password,
+          'commit': 'Log+in'
+        }
       }
 
       request.post(query, function(error, response, body) {
         if (error) {
-          console.log('Something went wrong:', error);
-          reject();
-        } else if (response.statusCode !== 302) {
+          reject(error);
+          return;
+        }
+        if (response.statusCode !== 302) {
           // HS don't redirect to dashboard => authentication failed
-          console.log('HS authentication failed');
-          reject();
+          return reject('HS authentication failed');
         }
         resolve();
       });
-
     });
   });
 
@@ -119,37 +121,25 @@ OAuthHS.prototype._getAuthGrant = function _getAuthGrant() {
   var _this = this;
 
   return new RSVP.Promise(function(resolve, reject) {
-    var params = {
-      client_id: _this.hsID,
-      response_type: 'code',
-      redirect_uri: CALLBACK_URI
+
+    var query = {
+      url: HS_AUTHORIZE_URL,
+      form: {
+        client_id: _this.config.hsID,
+        response_type: 'code',
+        redirect_uri: CALLBACK_URI
+      }
     }
 
-    var options = {
-      url: HS_AUTHORIZE_URL + '?' + querystring.stringify(params),
-    };
-
-    request.get(options, function(error, response, body) {
+    request.post(query, function(error, response, body) {
       if (error) {
-        console.log('Something went wrong:', error);
-        reject();
+        reject(error);
+        return;
       }
 
-      var query = {
-        url: HS_AUTHORIZE_URL,
-        form: params
-      }
-
-      // TODO: Not necesary if we already have the auth
-      request.post(query, function(error, response, body) {
-        if (error) {
-          console.log('Something went wrong:', error);
-          reject();
-        }
-        var authCode = url.parse(response.headers.location).pathname.split('/')[3];
-        resolve(authCode);
-      });
-
+      var uri = url.parse(response.headers.location);
+      var authCode = uri.pathname.split('/')[3];
+      resolve(authCode);
     });
   });
 
@@ -160,30 +150,27 @@ OAuthHS.prototype._getAccessToken = function _getAccessToken(authCode) {
   var _this = this;
 
   return new RSVP.Promise(function(resolve, reject) {
-    var params = {
-      grant_type: "authorization_code",
-      code: authCode,
-      redirect_uri: CALLBACK_URI,
-      client_id: _this.hsID
-    }
-
     var query = {
       url: HS_ACCESS_TOKEN_URL,
-      form: params,
+      form: {
+        grant_type: "authorization_code",
+        code: authCode,
+        redirect_uri: CALLBACK_URI,
+        client_id: _this.config.hsID
+      },
       auth: {
-        user: _this.hsID,
-        pass: _this.hsSecret
+        user: _this.config.hsID,
+        pass: _this.config.hsSecret
       }
     }
 
     request.post(query, function(error, response, body) {
       if (error) {
-        console.log('Something went wrong:', error);
-        reject();
+        reject(error);
+        return;
       }
       resolve(JSON.parse(body));
     });
-
   });
 
 }
