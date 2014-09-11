@@ -1,7 +1,6 @@
-'use strict'
+/* jshint node: true*/
+'use strict';
 
-var https = require('https');
-var querystring = require('querystring');
 var url = require('url');
 var request = require('request');
 var RSVP = require('rsvp');
@@ -27,8 +26,8 @@ var OAuthHS = module.exports = function(config, cb) {
   this.config.password = config.password;
   Object.freeze(this.config);
 
-  this.accessToken;
-  this.refreshToken;
+  this.accessToken = null;
+  this.refreshToken = null;
 
   var _this = this;
 
@@ -52,7 +51,7 @@ var OAuthHS = module.exports = function(config, cb) {
       cb(error);
     });
 
-}
+};
 
 OAuthHS.connectHS = function connectHS(conf, cb) {
 
@@ -60,7 +59,7 @@ OAuthHS.connectHS = function connectHS(conf, cb) {
     cb(error, oauth);
   });
 
-}
+};
 
 OAuthHS.prototype.getHS = function getHS(command, cb) {
 
@@ -79,7 +78,7 @@ OAuthHS.prototype.getHS = function getHS(command, cb) {
     cb(null, JSON.parse(body));
   });
 
-}
+};
 
 OAuthHS.prototype._loginHS = function _loginHS (username, password) {
 
@@ -114,7 +113,7 @@ OAuthHS.prototype._loginHS = function _loginHS (username, password) {
     });
   });
 
-}
+};
 
 OAuthHS.prototype._getAuthGrant = function _getAuthGrant() {
 
@@ -143,7 +142,7 @@ OAuthHS.prototype._getAuthGrant = function _getAuthGrant() {
     });
   });
 
-}
+};
 
 OAuthHS.prototype._getAccessToken = function _getAccessToken(authCode) {
 
@@ -173,4 +172,4 @@ OAuthHS.prototype._getAccessToken = function _getAccessToken(authCode) {
     });
   });
 
-}
+};
