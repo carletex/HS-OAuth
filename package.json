@@ -5,8 +5,7 @@
   "main": "oauth-hs.js",
   "dependencies": {
     "request": "~2.40.0",
-    "rsvp": "~3.0.13",
-    "read": "~1.0.5"
+    "rsvp": "~3.0.13"
   },
   "repository": {
     "type": "git",

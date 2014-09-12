@@ -1,4 +1,4 @@
-/* jshint node: true*/
+/* jshint node: true */
 'use strict';
 
 var url = require('url');
@@ -25,7 +25,6 @@ var OAuthHS = module.exports = function(config, cb) {
     username: config.username,
     password: config.password
   };
-
   Object.freeze(this.config);
 
   this.accessToken = null;
