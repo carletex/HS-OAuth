@@ -2,7 +2,7 @@
   "name": "hs-oauth-node",
   "version": "0.0.1",
   "description": "OAuth node.js library for Hacker School",
-  "main": "oauth-hs.js",
+  "main": "hs-oauth.js",
   "dependencies": {
     "request": "~2.40.0",
     "rsvp": "~3.0.13"
