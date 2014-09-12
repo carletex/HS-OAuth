@@ -35,33 +35,33 @@ Make a get request to the protected HS resource.
 
 ### Example of use:
 
-	```javascript
-	var hs = require('hs-oauth');
+    ```javascript
+    var hs = require('hs-oauth');
 
-	config = {
-		username: 'your-hs-username',
-		password: 'your-hs-password',
-		hsID: 'your-hs-app-ID',
-		hsSecret: 'your-hs-app-Secret'
-	}
+    config = {
+        username: 'your-hs-username',
+        password: 'your-hs-password',
+        hsID: 'your-hs-app-ID',
+        hsSecret: 'your-hs-app-Secret'
+    }
 
-	hs.connectHS(config, function(error, conn) {
+    hs.connectHS(config, function(error, conn) {
 
-		if (error) {
-			console.log('Something went wrong:', error);
-			return;
-		}
+        if (error) {
+            console.log('Something went wrong:', error);
+            return;
+        }
 
-		var command = '/the/api/command';
+        var command = '/the/api/command';
 
-		conn.getHS(command, function(error, response) {
-			if (error) console.log('Something went wrong', error);
-			else console.log('Response from HS:', response);
-		});
+        conn.getHS(command, function(error, response) {
+            if (error) console.log('Something went wrong', error);
+            else console.log('Response from HS:', response);
+        });
 
-	});
+    });
 
-	```
+    ```
 
 ## Credits
 
