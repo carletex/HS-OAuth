@@ -38,7 +38,7 @@ Make a get request to the protected HS resource.
 ```javascript
 var hs = require('hs-oauth');
 
-config = {
+var config = {
     username: 'your-hs-username',
     password: 'your-hs-password',
     hsID: 'your-hs-app-ID',
