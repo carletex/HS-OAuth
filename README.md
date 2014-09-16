@@ -29,7 +29,7 @@ __getHS(command, callback)__
 
 Make a get request to the protected HS resource.
 
-- command: The request to the HS API `/you/api/command`. You don't need to write the full URL with http://www.hackerschool.com
+- command: The request to the HS API `/you/api/command`. You must not include the base URL.
 - callback: Takes 2 arguments `function(error, response)` where response is the parsed JSON as an object.
 
 
