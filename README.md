@@ -65,4 +65,4 @@ hs.connectHS(config, function(error, conn) {
 
 ## Credits
 
-Thanks to [Brian Ruslim](https://github.com/bruslim) and [Mary Roose Cook](https://github.com/maryrosecook)
+Thanks to [Brian Ruslim](https://github.com/bruslim) and [Mary Rose Cook](https://github.com/maryrosecook)
